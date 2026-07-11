@@ -13,6 +13,9 @@ resource "helm_release" "otel_gateway" {
       image = {
         repository = "otel/opentelemetry-collector-contrib"
       }
+      nodeSelector = {
+        "karpenter.sh/nodepool" = "app-nodepool"
+      }
       replicaCount = 1
       ports = {
         jaeger-compact = { enabled = false }
@@ -124,6 +127,9 @@ resource "helm_release" "otel_agent" {
       fullnameOverride = "otel-agent"
       image = {
         repository = "otel/opentelemetry-collector-contrib"
+      }
+      nodeSelector = {
+        "karpenter.sh/nodepool" = "app-nodepool"
       }
       ports = {
         otlp           = { enabled = false }
