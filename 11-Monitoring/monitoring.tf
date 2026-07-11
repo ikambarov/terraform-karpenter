@@ -18,10 +18,20 @@ resource "helm_release" "loki" {
         auth_enabled  = false
         useTestSchema = true
         commonConfig = {
+          path_prefix        = "/tmp/loki"
           replication_factor = 1
         }
         storage = {
           type = "filesystem"
+          filesystem = {
+            chunks_directory = "/tmp/loki/chunks"
+            rules_directory  = "/tmp/loki/rules"
+          }
+        }
+        rulerConfig = {
+          wal = {
+            dir = "/tmp/loki/ruler-wal"
+          }
         }
       }
       singleBinary = {
@@ -60,6 +70,10 @@ resource "helm_release" "loki" {
       }
     })
   ]
+
+  depends_on = [
+    helm_release.kube_prometheus_stack
+  ]
 }
 
 resource "helm_release" "tempo" {
@@ -93,6 +107,10 @@ resource "helm_release" "tempo" {
         enabled = true
       }
     })
+  ]
+
+  depends_on = [
+    helm_release.kube_prometheus_stack
   ]
 }
 
@@ -170,10 +188,6 @@ resource "helm_release" "kube_prometheus_stack" {
     })
   ]
 
-  depends_on = [
-    helm_release.loki,
-    helm_release.tempo
-  ]
 }
 
 output "grafana_admin_user" {
