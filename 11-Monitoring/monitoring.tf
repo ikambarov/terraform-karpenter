@@ -1,8 +1,3 @@
-resource "random_password" "grafana_admin" {
-  length  = 20
-  special = false
-}
-
 resource "helm_release" "loki" {
   name             = "loki"
   repository       = "https://grafana.github.io/helm-charts"
@@ -131,7 +126,11 @@ resource "helm_release" "kube_prometheus_stack" {
   values = [
     yamlencode({
       grafana = {
-        adminPassword = random_password.grafana_admin.result
+        admin = {
+          existingSecret = "grafana-admin"
+          userKey        = "admin-user"
+          passwordKey    = "admin-password"
+        }
         additionalDataSources = [
           {
             name      = "Loki"
@@ -194,15 +193,4 @@ resource "helm_release" "kube_prometheus_stack" {
     })
   ]
 
-}
-
-output "grafana_admin_user" {
-  description = "Grafana admin username."
-  value       = "admin"
-}
-
-output "grafana_admin_password" {
-  description = "Grafana admin password."
-  value       = random_password.grafana_admin.result
-  sensitive   = true
 }

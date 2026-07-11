@@ -18,13 +18,7 @@ output "database_username" {
   value       = var.database_username
 }
 
-output "database_password" {
-  description = "Generated Client Tracker database password."
-  value       = random_password.database.result
-  sensitive   = true
-}
-
 output "database_secret_arn" {
-  description = "AWS Secrets Manager secret ARN for database connection details."
-  value       = aws_secretsmanager_secret.database.arn
+  description = "AWS-managed Secrets Manager secret ARN for the RDS master user."
+  value       = aws_db_instance.client_tracker.master_user_secret[0].secret_arn
 }
