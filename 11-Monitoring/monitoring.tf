@@ -145,7 +145,7 @@ resource "helm_release" "kube_prometheus_stack" {
             type   = "tempo"
             uid    = "tempo"
             access = "proxy"
-            url    = "http://tempo.monitoring.svc.cluster.local:3100"
+            url    = "http://tempo.monitoring.svc.cluster.local:3200"
           }
         ]
         resources = {
