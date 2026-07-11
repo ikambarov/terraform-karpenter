@@ -31,7 +31,11 @@ resource "aws_subnet" "public" {
 
   tags = merge(
     var.common_tags,
-    { Name = "${var.env}-public-${each.key}" }
+    {
+      Name                                                   = "${var.env}-public-${each.key}"
+      "kubernetes.io/cluster/${var.env}-${var.cluster_name}" = "owned"
+      "kubernetes.io/role/elb"                               = "1"
+    }
   )
 }
 
@@ -47,7 +51,12 @@ resource "aws_subnet" "private" {
 
   tags = merge(
     var.common_tags,
-    { Name = "${var.env}-private-${each.key}" }
+    {
+      Name                                                   = "${var.env}-private-${each.key}"
+      "kubernetes.io/cluster/${var.env}-${var.cluster_name}" = "owned"
+      "kubernetes.io/role/internal-elb"                      = "1"
+      "karpenter.sh/discovery"                               = "${var.env}-${var.cluster_name}"
+    }
   )
 }
 
