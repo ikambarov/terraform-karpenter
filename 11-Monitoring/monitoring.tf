@@ -68,6 +68,12 @@ resource "helm_release" "loki" {
       gateway = {
         enabled = true
       }
+      lokiCanary = {
+        enabled = false
+      }
+      test = {
+        enabled = false
+      }
     })
   ]
 
