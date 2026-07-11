@@ -1,0 +1,87 @@
+image:
+  repository: client-tracker-app
+  tag: latest
+  pullPolicy: IfNotPresent
+
+django:
+  existingSecret: client-tracker-runtime
+  debug: "False"
+  allowedHosts: "*"
+
+runtime:
+  runMigrations: "false"
+  collectStatic: "true"
+  loadSampleData: "false"
+
+database:
+  type: mysql
+  name: client_tracker
+  host: ""
+  port: "3306"
+  user: admin
+  existingSecret: client-tracker-runtime
+  passwordKey: DB_PASSWORD
+
+service:
+  type: NodePort
+
+migrations:
+  enabled: true
+  loadSampleData: "false"
+
+ingress:
+  enabled: false
+
+gateway:
+  enabled: true
+  createGatewayClass: false
+  className: alb
+  loadBalancerConfiguration:
+    enabled: true
+    scheme: internet-facing
+    ipAddressType: ipv4
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+  hostnames: []
+
+extraEnv:
+  - name: OTEL_ENABLED
+    value: "true"
+  - name: OTEL_SERVICE_NAME
+    value: client-tracker
+  - name: OTEL_RESOURCE_ATTRIBUTES
+    value: service.namespace=client-tracker,deployment.environment=dev
+  - name: OTEL_EXPORTER_OTLP_ENDPOINT
+    value: http://otel-gateway.observability.svc.cluster.local:4318
+  - name: OTEL_EXPORTER_OTLP_PROTOCOL
+    value: http/protobuf
+  - name: OTEL_TRACES_EXPORTER
+    value: otlp
+  - name: OTEL_METRICS_EXPORTER
+    value: otlp
+  - name: OTEL_LOGS_EXPORTER
+    value: otlp
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 6
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+probes:
+  liveness:
+    initialDelaySeconds: 120
+    periodSeconds: 30
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readiness:
+    initialDelaySeconds: 20
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+
+nodeSelector:
+  karpenter.sh/nodepool: app-nodepool
