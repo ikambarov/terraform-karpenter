@@ -12,10 +12,16 @@ resource "aws_eks_addon" "dns_driver" {
     aws_eks_pod_identity_association.dns_controller
   ]
 
-  cluster_name                = data.aws_eks_cluster.target.name
-  addon_name                  = "external-dns"
-  addon_version               = data.aws_eks_addon_version.dns_latest.version
-  service_account_role_arn    = aws_iam_role.dns_controller_role.arn
+  cluster_name             = data.aws_eks_cluster.target.name
+  addon_name               = "external-dns"
+  addon_version            = data.aws_eks_addon_version.dns_latest.version
+  service_account_role_arn = aws_iam_role.dns_controller_role.arn
+  configuration_values = jsonencode({
+    domainFilters      = var.domain_filters
+    sources            = var.sources
+    triggerLoopOnEvent = true
+    txtOwnerId         = data.aws_eks_cluster.target.name
+  })
   resolve_conflicts_on_create = "OVERWRITE"
   resolve_conflicts_on_update = "OVERWRITE"
 
