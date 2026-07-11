@@ -28,6 +28,10 @@ resource "helm_release" "karpenter_node_controller" {
     name  = "serviceAccount.create"
     value = "true"
   }
+  set {
+    name  = "replicas"
+    value = "1"
+  }
 
   # Ensure IAM, access, and queue resources exist before deployment
   depends_on = [

@@ -40,6 +40,11 @@ resource "helm_release" "alb_controller" {
     name  = "region"
     value = var.aws_region
   }
+
+  set {
+    name  = "replicaCount"
+    value = "1"
+  }
 }
 
 # Output Helm release metadata
