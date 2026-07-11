@@ -78,13 +78,13 @@ resource "helm_release" "otel_gateway" {
           batch = {}
         }
         exporters = {
-          otlp = {
+          otlp_grpc = {
             endpoint = "tempo.monitoring.svc.cluster.local:4317"
             tls = {
               insecure = true
             }
           }
-          otlphttp = {
+          otlp_http = {
             endpoint = "http://loki-gateway.monitoring.svc.cluster.local/otlp"
           }
           debug = {}
@@ -93,17 +93,17 @@ resource "helm_release" "otel_gateway" {
           pipelines = {
             traces = {
               receivers  = ["otlp"]
-              processors = ["memory_limiter", "k8sattributes", "resource", "batch"]
-              exporters  = ["otlp"]
+              processors = ["memory_limiter", "k8s_attributes", "resource", "batch"]
+              exporters  = ["otlp_grpc"]
             }
             logs = {
               receivers  = ["otlp"]
-              processors = ["memory_limiter", "k8sattributes", "resource", "batch"]
-              exporters  = ["otlphttp"]
+              processors = ["memory_limiter", "k8s_attributes", "resource", "batch"]
+              exporters  = ["otlp_http"]
             }
             metrics = {
               receivers  = ["otlp"]
-              processors = ["memory_limiter", "k8sattributes", "resource", "batch"]
+              processors = ["memory_limiter", "k8s_attributes", "resource", "batch"]
               exporters  = ["debug"]
             }
           }
@@ -192,7 +192,7 @@ resource "helm_release" "otel_agent" {
           batch = {}
         }
         exporters = {
-          otlp = {
+          otlp_grpc = {
             endpoint = "otel-gateway.observability.svc.cluster.local:4317"
             tls = {
               insecure = true
@@ -204,12 +204,12 @@ resource "helm_release" "otel_agent" {
           pipelines = {
             logs = {
               receivers  = ["otlp", "filelog"]
-              processors = ["memory_limiter", "k8sattributes", "resource", "batch"]
-              exporters  = ["otlp"]
+              processors = ["memory_limiter", "k8s_attributes", "resource", "batch"]
+              exporters  = ["otlp_grpc"]
             }
             metrics = {
               receivers  = ["otlp", "hostmetrics", "kubeletstats"]
-              processors = ["memory_limiter", "k8sattributes", "resource", "batch"]
+              processors = ["memory_limiter", "k8s_attributes", "resource", "batch"]
               exporters  = ["debug"]
             }
           }
